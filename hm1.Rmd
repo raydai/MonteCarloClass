@@ -1,0 +1,95 @@
+---
+title: "Monte Carlo Homework 1"
+author: "Ray Su"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    highlight: kate
+    number_sections: no
+    theme: journal
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("DiagrammeR")
+library("ggplot2")
+```
+# Question for Thursday
+A miner is trapped in a mine with 3 doors.  Door 1 leads to a tunnel which takes him to safety after 2 hours of travel.   The second door leads to a tunnel that returns him to the mine after 3 hours of travel.  The 3rd door leads to a tunnel which returns him to the mine after 5 hours.  Assuming that the miner is at all times equally likely to choose any one of the doors, what is the expected length of time until the miner reaches safety?
+
+```{r}
+grViz("
+digraph boxes_and_circles {
+
+# add node statemetns
+node [shape = polygon
+      fontname = Helvetica
+]
+#add edge statements
+Start->Door1 [label= '  p=1/3'];
+Start->Door2 [label= '  p=1/3'];
+Start->Door3 [label= '  p=1/3'];
+Door1-> Safety [label= '  2 hours'];
+Door2-> Start [label= ' 3 hours'];
+Door3-> Start [label= ' 5 hours'];
+}      
+")
+```
+
+## To caculate the conditional expectation of the number of hours for reaching safty
+
+X = the number of the minutes to reach safety
+
+E(X)=E(X|Door1)P(Door1) + E(X|Door2)P(Door2) + E(X|Door3)P(Door3)=6/3+[3+E(X)]/3+[5+E(X)]/3 
+
+Answer:E(X)=10
+
+The oringinal code could be found from [youtube](https://www.youtube.com/watch?v=SP0yJEaWT3w).
+```{r,echo=TRUE,warning=FALSE}
+set.seed(20170904)
+time.escape<-function(escape = 0){
+    # escape = 0: No, 1: Yes
+    time = 0
+    while (escape ==0){
+      door <-ceiling(runif(n = 1,min = 0,max = 3))
+      if (door ==1){
+        escape = 1
+        time = time +2}
+      if (door ==2) time = time+3
+      if (door ==3) time = time+5
+    }
+    return(time)
+}
+n=500
+time.list<-replicate(n,time.escape(0))
+mean(time.list)
+```
+Plot
+```{r}
+mydata<-data.frame(
+  "iter"=c(1:n),
+  "Escape.time"=time.list
+)
+ggplot(mydata,aes(x=iter,y=Escape.time))+geom_line()+geom_hline(yintercept =mean(time.list),show.legend = TRUE,colour="red")+
+  annotate("text",x= 150,y =mean(time.list)+1,label= paste("Mean of escape time=",mean(time.list),sep=""), colour = "blue")+theme_bw()
+
+ggplot(mydata,aes(x=iter,y=Escape.time)) +
+  ylim(0, NA) +
+  geom_point(color = 'red', stat = 'identity') +
+  geom_polygon(color = 'purple', fill=NA) +
+  coord_polar(start = - pi * 1/24)
+```
+
+
+
+
+
+
+
+

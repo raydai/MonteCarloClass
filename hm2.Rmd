@@ -1,0 +1,113 @@
+---
+title: "Monte Carlo Homework 2"
+author: "Ray Su"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    highlight: kate
+    number_sections: no
+    theme: paper
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+---
+
+```{r package}
+library("DiagrammeR")
+library("ggplot2")
+```
+
+# Question for Thursday
+Hospital X is planning on opening an in-hospital certified Birth Center.They are planning to have two rooms in which women will stay for their entire labor, delivery and post-partum period. If women and/or their infants need to stay in the hospital more than 24 hours, they will be transferred to the post-partum unit.
+
+We think we need three Birth Center birthing rooms. We will be doing about 15 births a month and estimate a average stay in the center of 34 hours. 
+
+We need to estimate the probability of 3 or more women being in the center at the same time and maybe the probability of that happening once, twice, three times a month.
+
+It would also be good to run the same problem with 12 births a month and 20 births a month.
+
+
+# Answer
+X: The number of patients arriving in the center within one day
+A: The number of the event (X>=3) happening in a month
+
++ Assume probability of events X is a Poisson distribution.
++ Here we know 15 births per month  = >   0.5 births per day
+```{r lambda 15}
+set.seed(201713)
+iter=10000
+Prob_vector<-c()
+EventA<- c()
+for (i in 1:iter){
+  (X<-rpois(n=30,lambda = 0.5))
+  A<-length(which(X>=3))
+  X_large2<-length(which(X>=3))/30
+  Prob_vector<-c(Prob_vector,X_large2)
+  EventA<-c(EventA,A)
+}
+DistA<-data.frame(table(EventA))
+DistA$prob<-DistA$Freq/iter
+```
+## Q1: the probability of 3 or more women being in the center at the same time.
+If do 10,000 times simulation: P(X>=3) = `r round(mean(Prob_vector),4) ` .
+Caculete by using poisson distribution: `r ppois(2, lambda=0.5, lower=FALSE)`
+
+The probability distribution of event A
+```{r}
+DistA
+```
+
+#12 births a month 
+```{r lambda 12}
+set.seed(201713)
+iter=10000
+Prob_vector<-c()
+EventA<-c()
+for (i in 1:iter){
+  (X<-rpois(n=30,lambda = 12/30))
+  A<-length(which(X>=3))
+  X_large2<-length(which(X>=3))/30
+  Prob_vector<-c(Prob_vector,X_large2)
+  EventA<-c(EventA,A)
+}
+DistA<-data.frame(table(EventA))
+DistA$prob<-DistA$Freq/iter
+```
+If do 10,000 times simulation: P(X>=3) = `r round(mean(Prob_vector),4) ` .
+Caculete by using poisson distribution:`r ppois(2, lambda=12/30, lower=FALSE)`
+```{r}
+DistA
+```
+
+#20 births a month.
+```{r lambda 20}
+set.seed(201720)
+iter=10000
+Prob_vector<-c()
+EventA<-c()
+for (i in 1:iter){
+  (X<-rpois(n=30,lambda = 20/30))
+  A<-length(which(X>=3))
+  X_large2<-length(which(X>=3))/30
+  Prob_vector<-c(Prob_vector,X_large2)
+  EventA<-c(EventA,A)
+}
+DistA<-data.frame(table(EventA))
+DistA$prob<-DistA$Freq/iter
+```
+If do 10,000 times simulation: P(X>=3) = `r round(mean(Prob_vector),4) `.
+Caculete by using poisson distribution:`r ppois(2, lambda=20/30, lower=FALSE)`
+```{r}
+DistA
+```
+
+
+# Consider the time
+
+
+
+
